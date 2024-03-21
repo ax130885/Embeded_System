@@ -3,11 +3,10 @@
 
 // wifi setting
     // mbed_app.json
-            // value改成ipconfig中本機ipv6的值
+            // value改成ipconfig的值
             // "nsapi.default-wifi-ssid": "\"esys305\"",
             // "nsapi.default-wifi-password": "\"305305abcd\"",
-            // "nsapi.default-wifi-ssid": "\"CIBIL-105\"",
-            // "nsapi.default-wifi-password": "\"cibillab105\"",
+
 
 /* Sockets Example
  * Copyright (c) 2016-2020 ARM Limited
@@ -139,17 +138,16 @@ public:
         /* exchange an HTTP request and response */
 
         // ZZZ
-        // while(true){
-        //     if (!send_http_request()){
-        //         printf("send http request error\r\n");
-        //         return;
-        //     }
-        //     send_http_request();          
-        // }
-        if (!send_http_request()) {
-            return;
+        while(true){
+            if (!send_http_request()){
+                printf("send http request error\r\n");
+                return;
+            }
+            send_http_request();          
         }
-        send_http_request();
+        // if (!send_http_request()) {
+        //     return;
+        // }
 
         if (!receive_http_response()) {
             return;
@@ -191,73 +189,49 @@ private:
         float pGyroDataXYZ[3] = {0};
         char temp_str[50]="";
 
-        // printf("\nNew loop, LED1 should blink during sensor read\n");
-        // led = 1;
+        printf("\nNew loop, LED1 should blink during sensor read\n");
+        led = 1;
 
-        // sensor_value = BSP_TSENSOR_ReadTemp();
-        // sprintf(temp_str, "\nTEMPERATURE = %.2f degC\n", sensor_value);
-        // strcat(buffer, temp_str);
-        // sensor_value = BSP_HSENSOR_ReadHumidity();
-        // sprintf(temp_str, "HUMIDITY    = %.2f %%\n", sensor_value);
-        // strcat(buffer, temp_str);
-        // sensor_value = BSP_PSENSOR_ReadPressure();
-        // sprintf(temp_str, "PRESSURE is = %.2f mBar\n", sensor_value);
-        // strcat(buffer, temp_str);
-        // led = 0;
+        sensor_value = BSP_TSENSOR_ReadTemp();
+        sprintf(temp_str, "\nTEMPERATURE = %.2f degC\n", sensor_value);
+        strcat(buffer, temp_str);
+        sensor_value = BSP_HSENSOR_ReadHumidity();
+        sprintf(temp_str, "HUMIDITY    = %.2f %%\n", sensor_value);
+        strcat(buffer, temp_str);
+        sensor_value = BSP_PSENSOR_ReadPressure();
+        sprintf(temp_str, "PRESSURE is = %.2f mBar\n", sensor_value);
+        strcat(buffer, temp_str);
+        led = 0;
 
-        // ThisThread::sleep_for(1s);
-        // led = 1;
+        ThisThread::sleep_for(1000);
+        led = 1;
 
-        // BSP_MAGNETO_GetXYZ(pDataXYZ);
-        // sprintf(temp_str, "\nMAGNETO_X = %d gauss\n", pDataXYZ[0]);
-        // strcat(buffer, temp_str);
-        // sprintf(temp_str, "MAGNETO_Y = %d gauss\n", pDataXYZ[1]);
-        // strcat(buffer, temp_str);
-        // sprintf(temp_str, "MAGNETO_Z = %d gauss\n", pDataXYZ[2]);
-        // strcat(buffer, temp_str);
+        BSP_MAGNETO_GetXYZ(pDataXYZ);
+        sprintf(temp_str, "\nMAGNETO_X = %d gauss\n", pDataXYZ[0]);
+        strcat(buffer, temp_str);
+        sprintf(temp_str, "MAGNETO_Y = %d gauss\n", pDataXYZ[1]);
+        strcat(buffer, temp_str);
+        sprintf(temp_str, "MAGNETO_Z = %d gauss\n", pDataXYZ[2]);
+        strcat(buffer, temp_str);
 
-        // BSP_GYRO_GetXYZ(pGyroDataXYZ);
-        // sprintf(temp_str, "\nGYRO_X = %.2f degree per second\n", pGyroDataXYZ[0]);
-        // strcat(buffer, temp_str);
-        // sprintf(temp_str, "GYRO_Y = %.2f degree per second\n", pGyroDataXYZ[1]);
-        // strcat(buffer, temp_str);
-        // sprintf(temp_str, "GYRO_Z = %.2f degree per second\n", pGyroDataXYZ[2]);
-        // strcat(buffer, temp_str);
+        BSP_GYRO_GetXYZ(pGyroDataXYZ);
+        sprintf(temp_str, "\nGYRO_X = %.2f degree per second\n", pGyroDataXYZ[0]);
+        strcat(buffer, temp_str);
+        sprintf(temp_str, "GYRO_Y = %.2f degree per second\n", pGyroDataXYZ[1]);
+        strcat(buffer, temp_str);
+        sprintf(temp_str, "GYRO_Z = %.2f degree per second\n", pGyroDataXYZ[2]);
+        strcat(buffer, temp_str);
 
-        // BSP_ACCELERO_AccGetXYZ(pDataXYZ);
-        // sprintf(temp_str, "\nACCELERO_X = %d g\n", pDataXYZ[0]);
-        // strcat(buffer, temp_str);
-        // sprintf(temp_str, "ACCELERO_Y = %d g\n", pDataXYZ[1]);
-        // strcat(buffer, temp_str);
-        // sprintf(temp_str, "ACCELERO_Z = %d g\n", pDataXYZ[2]);
-        // strcat(buffer, temp_str);
-        // led = 0;
+        BSP_ACCELERO_AccGetXYZ(pDataXYZ);
+        sprintf(temp_str, "\nACCELERO_X = %d g\n", pDataXYZ[0]);
+        strcat(buffer, temp_str);
+        sprintf(temp_str, "ACCELERO_Y = %d g\n", pDataXYZ[1]);
+        strcat(buffer, temp_str);
+        sprintf(temp_str, "ACCELERO_Z = %d g\n", pDataXYZ[2]);
+        strcat(buffer, temp_str);
+        led = 0;
 
-        // ThisThread::sleep_for(1s);
-        ////////////////////////////////////////////////////////////////
-
-        int sample_num = 0;
-        int SCALE_MULTIPLIER = 1;
-        char acc_json[200];
-        int response = 0;
-        while (1){
-            ++sample_num;
-            BSP_ACCELERO_AccGetXYZ(pDataXYZ);
-            BSP_GYRO_GetXYZ(pGyroDataXYZ);
-            float x = pDataXYZ[0]*SCALE_MULTIPLIER, y = pDataXYZ[1]*SCALE_MULTIPLIER,
-                z = pDataXYZ[2]*SCALE_MULTIPLIER, gx = pGyroDataXYZ[0]*SCALE_MULTIPLIER,
-                gy = pGyroDataXYZ[1]*SCALE_MULTIPLIER, gz = pGyroDataXYZ[2]*SCALE_MULTIPLIER;
-            int len = sprintf(acc_json,"{\"x\":%f,\"y\":%f,\"z\":%f,\"gx\":%f,\"gy\":%f,\"gz\":%f,\"s\":%d}",(float)((int)(x*10000))/10000,
-            (float)((int)(y*10000))/10000, (float)((int)(z*10000))/10000, 
-            (float)((int)(gx*100))/10000, (float)((int)(gy*100))/10000, 
-            (float)((int)(gz*100))/10000, sample_num);
-                response = _socket.send(acc_json,len);
-            if (0 >= response){
-                printf("Error seding: %d\n", response);
-            }
-            ThisThread::sleep_for(200ms);
-        }
-
+        ThisThread::sleep_for(1000);
         /////////////////////////////////////////
 
         nsapi_size_t bytes_to_send = strlen(buffer);
