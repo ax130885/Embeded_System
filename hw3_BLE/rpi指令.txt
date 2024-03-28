@@ -1,0 +1,41 @@
+【網路設定】
+sudo raspi-config # 連按兩下enter進入輸入wifi帳密; 回到首頁 -> 3 -> I2 打開開機自動啟動SSH 就不用下面輸入start SSH
+sudo cat /etc/wpa_supplicant/wpa_supplicant.conf
+# sudo vim /etc/wpa_supplicant/wpa_supplicant.conf
+sudo apt update; sudo apt -y upgrade
+sudo apt-get install vim
+
+【藍芽檢查】
+sudo hciconfig
+sudo hciconfig hci0 leadv 0
+sudo hcitool lescan
+
+【複製文件】
+先至rpi:sudo systemctl start ssh # 檢查使用sudo systemctl status ssh
+輸入ifconfig找wlan0 第一個inet的號碼
+用剛剛的號碼在mobaXterm開一個新的SSH連線
+
+或是可以在windows內使用以下指令
+scp C:/Users/USER/Desktop/ble_scan_connect.py user@192.168.50.37:/home/user/test/ # 依照剛剛查出來的ip修改
+scp C:/Users/USER/Desktop/rpi指令.txt user@192.168.50.37:/home/user/test/
+scp C:/Users/USER/Desktop/ble_notify_scanner.py user@192.168.50.37:/home/user/test/
+scp C:/Users/USER/Desktop/if_support_notify.py user@192.168.50.37:/home/user/test/
+scp C:/Users/USER/Desktop/notify.py user@192.168.50.35:/home/user/test/
+
+【啟動程式】
+sudo python ble_scan_connect.py
+sudo python ble_notify_scanner.py
+sudo python notify.py
+
+
+【解決連不上網路】
+sudo systemctl restart networking.service
+sudo killall wpa_supplicant
+sudo rm /var/run/wpa_supplicant/wlan0
+sudo wpa_supplicant -B -iwlan0 -c/etc/wpa_supplicant/wpa_supplicant.conf
+sudo ifconfig wlan0 up
+sudo iwconfig wlan0
+
+【檢查SSH】
+sudo systemctl status ssh
+sudo systemctl start ssh
