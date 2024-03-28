@@ -36,9 +36,9 @@ testService = dev.getServiceByUUID (UUID(0x9999))
 try:
     ch = testService.getCharacteristics(UUID(0x9191))[0]
 
-    print(ch.getDescriptors(UUID(0x2902))) # 0x2902 是Bluetooth SIG定義標準CCCD的handle
+    print(ch.getDescriptors(UUID(0x2902))) # 0x2902 是Bluetooth SIG定義用來代表CCCD的UUID
     cccd = ch.getDescriptors(UUID(0x2902))[0]
-    cccd.write(b"\x01\x00") # \x02\x00代表啟動notify; \x02\x00代表啟動indicate; 不可使用\x0200取代，因為這樣透過ascii轉換後僅代表一個字元。
+    cccd.write(b"\x01\x00") # \x01\x00代表啟動notify; \x02\x00代表啟動indicate; 不可使用\x0200取代，因為這樣透過ascii轉換後僅代表一個字元。
     
     while 1:
         # 如果有收到notify才會print 如果沒有收到進行下一次迴圈 每次wait 1sec
