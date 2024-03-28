@@ -29,13 +29,14 @@
    WRITE_SIGNED_MITM（寫入 + 簽名 + MITM）：0x80
    其中MITM和簽名是防駭的安全機制。
 
-![藍芽概念圖1](image-1.png "wtf")
+| ![藍芽概念圖1](image-1.png) |
+|:--:|
+| *藍芽GATT概念圖1* |
 
-<center>藍芽概念圖1</center>
+| ![藍芽概念圖2](image-2.png) |
+|:--:|
+| *藍芽GATT概念圖2* |
 
-![藍芽概念圖2](image-2.png)
-
-<center>藍芽概念圖2</center>
 
 
 ### 【write, read, notify, indicate】
