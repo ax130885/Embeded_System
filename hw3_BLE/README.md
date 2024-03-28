@@ -76,13 +76,14 @@ Handle 類似於相對地址的概念，相同層級內的handle通常是連續�
 |:--:|
 | *Step 3.service UUID為0x9999可點擊i修改，同理characteristic的UUID 0x9191也可以修改。要在setvalue選擇要啟用的傳輸方式(write, read, notify, indicate)，此處為例要選擇notify + write，接著點擊灰色notify的區域即可傳值。若點擊右上角的C可以read。* |
 
-| ![alt text](image-6.png)
+| ![alt text](image-6.png) |
 |:--:|
 | *Step 4.記得修改notify.py的UUID為剛剛自己設置的值。* |
 
 | ![alt text](image.png) |
 |:--:|
 | *Step 5.。執行結果:在藍芽輸入的hex值記得透過ascii轉換為字符，輸入字符則會轉換為hex值。* |
+
 
 ### 【reference】
 bluepy API: https://ianharvey.github.io/bluepy-doc/
