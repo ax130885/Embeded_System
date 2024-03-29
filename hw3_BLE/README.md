@@ -90,4 +90,4 @@ Handle 類似於相對地址的概念，相同層級內的handle通常是連續�
 ### 【reference】
 bluepy API: https://ianharvey.github.io/bluepy-doc/  
 
-官方保留UUID文檔: https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Assigned_Numbers/out/en/Assigned_Numbers.pdf?v=1711651089126
+官方保留UUID說明文件: https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Assigned_Numbers/out/en/Assigned_Numbers.pdf?v=1711651089126
