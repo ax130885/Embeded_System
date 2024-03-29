@@ -52,16 +52,17 @@
 4. 在藍芽內傳輸資料時，類似於高階語言中都是用變數在call value，這裡要用UUID來call value。(用法見 notify.py)
 
 ### 【CCCD】
-CCCD實際的UUID值為0x2902，是一個官方特別保留的UUID，在characteristic的descriptor中使用，用來宣告這個characteristic使否要啟用notify或是indicate的功能。(property和這裡都要宣告)
-將這個descriptor內的value
-設為b"\x01\x00"代表啟用notify
-設為b"\x02\x00"代表啟用indicate
-設為b"\x00\x00"代表禁用notify & indicate
-若輸入任意其他值可能導致錯誤。
+CCCD實際的UUID值為0x2902，是一個官方特別保留的UUID。  
+在characteristic的descriptor中使用，用來宣告這個characteristic使否要啟用notify或是indicate的功能。(property和這裡都要宣告)  
+將這個descriptor內的value  
+設為b"\x01\x00"代表啟用notify  
+設為b"\x02\x00"代表啟用indicate  
+設為b"\x00\x00"代表禁用notify & indicate  
+若輸入任意其他值可能導致錯誤。  
 
 ### 【Handle】
-Handle 類似於相對地址的概念，相同層級內的handle通常是連續的。
-但不同層級或跨層級的handle間是完全沒關係的。
+Handle 類似於相對地址的概念，相同層級內的handle通常是連續的。  
+但不同層級或跨層級的handle間是完全沒關係。
 
 ### 【BLE scanner操作】(IOS限定免費, android可以改用apk下載BLE tools)
 
