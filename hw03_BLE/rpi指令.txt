@@ -16,15 +16,9 @@ sudo hcitool lescan
 用剛剛的號碼在mobaXterm開一個新的SSH連線
 
 或是可以在windows內使用以下指令
-scp C:/Users/USER/Desktop/ble_scan_connect.py user@192.168.50.37:/home/user/test/ # 依照剛剛查出來的ip修改
-scp C:/Users/USER/Desktop/rpi指令.txt user@192.168.50.37:/home/user/test/
-scp C:/Users/USER/Desktop/ble_notify_scanner.py user@192.168.50.37:/home/user/test/
-scp C:/Users/USER/Desktop/if_support_notify.py user@192.168.50.37:/home/user/test/
-scp C:/Users/USER/Desktop/notify.py user@192.168.50.35:/home/user/test/
+scp C:/Users/USER/Desktop/檔名 user@192.168.50.37:/home/user/test/ # 依照剛剛查出來的ip修改
 
 【啟動程式】
-sudo python ble_scan_connect.py
-sudo python ble_notify_scanner.py
 sudo python notify.py
 
 
