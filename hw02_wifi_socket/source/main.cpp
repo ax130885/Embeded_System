@@ -2,12 +2,12 @@
 // add library http://os.mbed.com/teams/ST/code/BSP_B-L475E-IOT01/
 
 // wifi setting
-    // mbed_app.json
-            // value改成ipconfig中本機ipv6的值
-            // "nsapi.default-wifi-ssid": "\"esys305\"",
-            // "nsapi.default-wifi-password": "\"305305abcd\"",
-            // "nsapi.default-wifi-ssid": "\"CIBIL-105\"",
-            // "nsapi.default-wifi-password": "\"cibillab105\"",
+// mbed_app.json
+// value改成ipconfig中本機ipv6的值
+// "nsapi.default-wifi-ssid": "\"esys305\"",
+// "nsapi.default-wifi-password": "\"305305abcd\"",
+// "nsapi.default-wifi-ssid": "\"CIBIL-105\"",
+// "nsapi.default-wifi-password": "\"cibillab105\"",
 
 /* Sockets Example
  * Copyright (c) 2016-2020 ARM Limited
@@ -48,7 +48,8 @@
 
 DigitalOut led(LED1);
 
-class SocketDemo {
+class SocketDemo
+{
     static constexpr size_t MAX_NUMBER_OF_ACCESS_POINTS = 10;
     static constexpr size_t MAX_MESSAGE_RECEIVED_LENGTH = 100;
 
@@ -65,20 +66,23 @@ public:
 
     ~SocketDemo()
     {
-        if (_net) {
+        if (_net)
+        {
             _net->disconnect();
         }
     }
 
     void run()
     {
-        if (!_net) {
+        if (!_net)
+        {
             printf("Error! No network interface found.\r\n");
             return;
         }
 
         /* if we're using a wifi interface run a quick scan */
-        if (_net->wifiInterface()) {
+        if (_net->wifiInterface())
+        {
             /* the scan is not required to connect and only serves to show visible access points */
             wifi_scan();
 
@@ -92,7 +96,8 @@ public:
         printf("Connecting to the network...\r\n");
 
         nsapi_size_or_error_t result = _net->connect();
-        if (result != 0) {
+        if (result != 0)
+        {
             printf("Error! _net->connect() returned: %d\r\n", result);
             return;
         }
@@ -101,14 +106,16 @@ public:
 
         /* opening the socket only allocates resources */
         result = _socket.open(_net);
-        if (result != 0) {
+        if (result != 0)
+        {
             printf("Error! _socket.open() returned: %d\r\n", result);
             return;
         }
 
 #if MBED_CONF_APP_USE_TLS_SOCKET
         result = _socket.set_root_ca_cert(root_ca_cert);
-        if (result != NSAPI_ERROR_OK) {
+        if (result != NSAPI_ERROR_OK)
+        {
             printf("Error: _socket.set_root_ca_cert() returned %d\n", result);
             return;
         }
@@ -119,7 +126,8 @@ public:
 
         SocketAddress address;
 
-        if (!resolve_hostname(address)) {
+        if (!resolve_hostname(address))
+        {
             return;
         }
 
@@ -131,27 +139,30 @@ public:
         printf("Opening connection to remote port %d\r\n", REMOTE_PORT);
 
         result = _socket.connect(address);
-        if (result != 0) {
+        if (result != 0)
+        {
             printf("Error! _socket.connect() returned: %d\r\n", result);
             return;
         }
 
         /* exchange an HTTP request and response */
 
-        // ZZZ
         // while(true){
         //     if (!send_http_request()){
         //         printf("send http request error\r\n");
         //         return;
         //     }
-        //     send_http_request();          
+        //     send_http_request();
         // }
-        if (!send_http_request()) {
+
+        if (!send_http_request())
+        {
             return;
         }
         send_http_request();
 
-        if (!receive_http_response()) {
+        if (!receive_http_response())
+        {
             return;
         }
 
@@ -166,12 +177,13 @@ private:
         /* get the host address */
         printf("\nResolve hostname %s\r\n", hostname);
         nsapi_size_or_error_t result = _net->gethostbyname(hostname, &address);
-        if (result != 0) {
+        if (result != 0)
+        {
             printf("Error! gethostbyname(%s) returned: %d\r\n", hostname, result);
             return false;
         }
 
-        printf("%s address is %s\r\n", hostname, (address.get_ip_address() ? address.get_ip_address() : "None") );
+        printf("%s address is %s\r\n", hostname, (address.get_ip_address() ? address.get_ip_address() : "None"));
 
         return true;
     }
@@ -179,80 +191,36 @@ private:
     bool send_http_request()
     {
         /* loop until whole request sent */
-        // ZZZ
         char buffer[2048] = "GET / HTTP/1.1\r\n"
-                              "Host: ifconfig.io\r\n"
-                              "Connection: close\r\n"
-                              "\r\n";
-        
+                            "Host: ifconfig.io\r\n"
+                            "Connection: close\r\n"
+                            "\r\n";
+
         /////////////////////////////////////////
         float sensor_value = 0;
         int16_t pDataXYZ[3] = {0};
         float pGyroDataXYZ[3] = {0};
-        char temp_str[50]="";
-
-        // printf("\nNew loop, LED1 should blink during sensor read\n");
-        // led = 1;
-
-        // sensor_value = BSP_TSENSOR_ReadTemp();
-        // sprintf(temp_str, "\nTEMPERATURE = %.2f degC\n", sensor_value);
-        // strcat(buffer, temp_str);
-        // sensor_value = BSP_HSENSOR_ReadHumidity();
-        // sprintf(temp_str, "HUMIDITY    = %.2f %%\n", sensor_value);
-        // strcat(buffer, temp_str);
-        // sensor_value = BSP_PSENSOR_ReadPressure();
-        // sprintf(temp_str, "PRESSURE is = %.2f mBar\n", sensor_value);
-        // strcat(buffer, temp_str);
-        // led = 0;
-
-        // ThisThread::sleep_for(1s);
-        // led = 1;
-
-        // BSP_MAGNETO_GetXYZ(pDataXYZ);
-        // sprintf(temp_str, "\nMAGNETO_X = %d gauss\n", pDataXYZ[0]);
-        // strcat(buffer, temp_str);
-        // sprintf(temp_str, "MAGNETO_Y = %d gauss\n", pDataXYZ[1]);
-        // strcat(buffer, temp_str);
-        // sprintf(temp_str, "MAGNETO_Z = %d gauss\n", pDataXYZ[2]);
-        // strcat(buffer, temp_str);
-
-        // BSP_GYRO_GetXYZ(pGyroDataXYZ);
-        // sprintf(temp_str, "\nGYRO_X = %.2f degree per second\n", pGyroDataXYZ[0]);
-        // strcat(buffer, temp_str);
-        // sprintf(temp_str, "GYRO_Y = %.2f degree per second\n", pGyroDataXYZ[1]);
-        // strcat(buffer, temp_str);
-        // sprintf(temp_str, "GYRO_Z = %.2f degree per second\n", pGyroDataXYZ[2]);
-        // strcat(buffer, temp_str);
-
-        // BSP_ACCELERO_AccGetXYZ(pDataXYZ);
-        // sprintf(temp_str, "\nACCELERO_X = %d g\n", pDataXYZ[0]);
-        // strcat(buffer, temp_str);
-        // sprintf(temp_str, "ACCELERO_Y = %d g\n", pDataXYZ[1]);
-        // strcat(buffer, temp_str);
-        // sprintf(temp_str, "ACCELERO_Z = %d g\n", pDataXYZ[2]);
-        // strcat(buffer, temp_str);
-        // led = 0;
-
-        // ThisThread::sleep_for(1s);
-        ////////////////////////////////////////////////////////////////
+        char temp_str[50] = "";
 
         int sample_num = 0;
         int SCALE_MULTIPLIER = 1;
         char acc_json[200];
         int response = 0;
-        while (1){
+        while (1)
+        {
             ++sample_num;
             BSP_ACCELERO_AccGetXYZ(pDataXYZ);
             BSP_GYRO_GetXYZ(pGyroDataXYZ);
-            float x = pDataXYZ[0]*SCALE_MULTIPLIER, y = pDataXYZ[1]*SCALE_MULTIPLIER,
-                z = pDataXYZ[2]*SCALE_MULTIPLIER, gx = pGyroDataXYZ[0]*SCALE_MULTIPLIER,
-                gy = pGyroDataXYZ[1]*SCALE_MULTIPLIER, gz = pGyroDataXYZ[2]*SCALE_MULTIPLIER;
-            int len = sprintf(acc_json,"{\"x\":%f,\"y\":%f,\"z\":%f,\"gx\":%f,\"gy\":%f,\"gz\":%f,\"s\":%d}",(float)((int)(x*10000))/10000,
-            (float)((int)(y*10000))/10000, (float)((int)(z*10000))/10000, 
-            (float)((int)(gx*100))/10000, (float)((int)(gy*100))/10000, 
-            (float)((int)(gz*100))/10000, sample_num);
-                response = _socket.send(acc_json,len);
-            if (0 >= response){
+            float x = pDataXYZ[0] * SCALE_MULTIPLIER, y = pDataXYZ[1] * SCALE_MULTIPLIER,
+                  z = pDataXYZ[2] * SCALE_MULTIPLIER, gx = pGyroDataXYZ[0] * SCALE_MULTIPLIER,
+                  gy = pGyroDataXYZ[1] * SCALE_MULTIPLIER, gz = pGyroDataXYZ[2] * SCALE_MULTIPLIER;
+            int len = sprintf(acc_json, "{\"x\":%f,\"y\":%f,\"z\":%f,\"gx\":%f,\"gy\":%f,\"gz\":%f,\"s\":%d}", (float)((int)(x * 10000)) / 10000,
+                              (float)((int)(y * 10000)) / 10000, (float)((int)(z * 10000)) / 10000,
+                              (float)((int)(gx * 100)) / 10000, (float)((int)(gy * 100)) / 10000,
+                              (float)((int)(gz * 100)) / 10000, sample_num);
+            response = _socket.send(acc_json, len);
+            if (0 >= response)
+            {
                 printf("Error seding: %d\n", response);
             }
             ThisThread::sleep_for(200ms);
@@ -265,12 +233,16 @@ private:
 
         printf("\r\nSending message: \r\n%s", buffer);
 
-        while (bytes_to_send) {
+        while (bytes_to_send)
+        {
             bytes_sent = _socket.send(buffer + bytes_sent, bytes_to_send);
-            if (bytes_sent < 0) {
+            if (bytes_sent < 0)
+            {
                 printf("Error! _socket.send() returned: %d\r\n", bytes_sent);
                 return false;
-            } else {
+            }
+            else
+            {
                 printf("sent %d bytes\r\n", bytes_sent);
             }
 
@@ -290,9 +262,11 @@ private:
 
         /* loop until there is nothing received or we've ran out of buffer space */
         nsapi_size_or_error_t result = remaining_bytes;
-        while (result > 0 && remaining_bytes > 0) {
+        while (result > 0 && remaining_bytes > 0)
+        {
             result = _socket.recv(buffer + received_bytes, remaining_bytes);
-            if (result < 0) {
+            if (result < 0)
+            {
                 printf("Error! _socket.recv() returned: %d\r\n", result);
                 return false;
             }
@@ -317,14 +291,16 @@ private:
         /* scan call returns number of access points found */
         int result = wifi->scan(ap, MAX_NUMBER_OF_ACCESS_POINTS);
 
-        if (result <= 0) {
+        if (result <= 0)
+        {
             printf("WiFiInterface::scan() failed with return value: %d\r\n", result);
             return;
         }
 
         printf("%d networks available:\r\n", result);
 
-        for (int i = 0; i < result; i++) {
+        for (int i = 0; i < result; i++)
+        {
             printf("Network: %s secured: %s BSSID: %hhX:%hhX:%hhX:%hhx:%hhx:%hhx RSSI: %hhd Ch: %hhd\r\n",
                    ap[i].get_ssid(), get_security_string(ap[i].get_security()),
                    ap[i].get_bssid()[0], ap[i].get_bssid()[1], ap[i].get_bssid()[2],
@@ -356,7 +332,8 @@ private:
 #endif // MBED_CONF_APP_USE_TLS_SOCKET
 };
 
-void sensor_init() {
+void sensor_init()
+{
     printf("Start sensor init\n");
 
     BSP_TSENSOR_Init();
@@ -368,7 +345,8 @@ void sensor_init() {
     BSP_ACCELERO_Init();
 }
 
-int main() {
+int main()
+{
     printf("\r\nStarting socket demo\r\n\r\n");
 
 #ifdef MBED_CONF_MBED_TRACE_ENABLE
