@@ -143,7 +143,9 @@ void start()
 ## 【實驗心得】
 ### 遇到的問題
 這次實驗我們在實作程式碼的時候遇到非常嚴重的大BUG，原因是因為add service這個專案沒辦法直接Import，僅能從github下載檔案後解壓縮。(我使用DownGit下載:https://github.com/ARMmbed/mbed-os-example-ble/tree/development/BLE_GattServer_AddService)。解壓縮後為一個add service的專案資料夾，我們便往裡頭import L475E的函式庫、從其他已有的專案中複製mbed os資料夾、和一些其他的檔案進來。***但操作完後卻發現IDE的報錯功能、ctrl+左鍵會導到source code的功能全都失效，並且沒辦法編譯，並且因為沒有錯誤碼完全無從修正起。***  
+  
 因為這個問題我們***放棄使用add service這個專案，找了一個舊版os中提供的gatt server的專案import***，提供計時的service。***一開始使用能正常執行***，所以我們便開始著手修改，使其提供心率和磁力的service。但修改到快完成時，發現不知道為甚麼，明明***只是修改變數名稱，卻在執行時產生program counter reg wrong value的問題。***(編譯時完全沒有任何error或是warning)。本來想嘗試從debuger去修改，但因為實在太底層，我的實力實在沒辦法看出到底是哪裡有問題。  
+  
 最後在誤打誤撞之下組員***把add service專案中的mbed_app.json這個檔案，以其他專案的mbed_app.json取代***，使得整個專案原本遇到不會報錯、不會找source code等***問題全都解決***。並且我後來進一步發現，甚至可以把這個檔案直接刪掉。但原本mbed_app.json的內容其實很正常，完全看不出來任何問題。並且***做到這一步時已經幾乎快過3個禮拜了，我們才真正能開始做作業要的，添加磁力計service的內容。***  
 
 ### 正確解法
