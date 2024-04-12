@@ -6,19 +6,14 @@
 
 ## 【實驗步驟】
 **1. 修改程式**
-```python
 1. 在Mbed Studio 中 import empty os。
 2. add lib: https://os.mbed.com/teams/ST/code/BSP_B-L475E-IOT01/
-
 3. 下載網址裡面的main.cpp取代empty os的: https://github.com/ARMmbed/mbed-os-example-ble/tree/development/BLE_GattServer_AddService  
 也可以使用downgit下載整個專案。(不知道為甚麼沒辦法直接import)(如果要使用要去把mbed_app.json刪掉或使用其他專案的mbed_app.json取代 否則會無法編譯)  
-
 4. 參考這兩個檔案撰寫自己的service
 mbed-os/connectivity/FEATURE_BLE/include/ble/services/EnvironmentalService.h # 程式碼較簡單
 mbed-os/connectivity/FEATURE_BLE/include/ble/services/HeartRateService.h # 程式碼較難
-
 5. 修改main.cpp和上次作業中在RPi執行的py檔案
-```
 
 **2. 復現方式**
 1. new新的empty os。
@@ -40,6 +35,7 @@ mbed-os/connectivity/FEATURE_BLE/include/ble/services/HeartRateService.h # 程�
 Q: **畫出程式執行的時序圖，並描述event_quene怎麼運作的。**  
 A: 
 ### 本專案的時序圖
+![alt text](image-4.png)
 1. 初始化
    - 初始化 mbed trace。
    - 初始化 BLE instance。
@@ -70,7 +66,6 @@ A:
 
 7. 程式進入 _event_queue.dispatch_forever()。
    - 處理所有的事件，包括 BLE 事件和定時更新 sensor 值的事件。
-![alt text](image-4.png)
 
 ### Event Quene
 #### 使用這三個方法排程佇列(還不會執行)：
@@ -147,9 +142,9 @@ void start()
 
 ## 【實驗心得】
 ### 遇到的問題
-這次實驗我們在實作程式碼的時候遇到非常嚴重的大BUG，原因是因為add service這個專案沒辦法直接Import，僅能從github下載檔案後解壓縮。(我使用DownGit下載:https://github.com/ARMmbed/mbed-os-example-ble/tree/development/BLE_GattServer_AddService)。解壓縮後為一個add service的專案資料夾，我們便往裡頭import L475E的函式庫、從其他已有的專案中複製mbed os資料夾、和一些其他的檔案進來。**但操作完後卻發現IDE的報錯功能、ctrl+左鍵會導到source code的功能全都失效，並且沒辦法編譯，並且因為沒有錯誤碼完全無從修正起。**  
-因為這個問題我們**放棄使用add service這個專案，找了一個舊版os中提供的gatt server的專案import**，提供計時的service。**一開始使用能正常執行**，所以我們便開始著手修改，使其提供心率和磁力的service。但修改到快完成時，發現不知道為甚麼，明明**只是修改變數名稱，卻在執行時產生program counter reg wrong value的問題。**(編譯時完全沒有任何error或是warning)。本來想嘗試從debuger去修改，但因為實在太底層，我的實力實在沒辦法看出到底是哪裡有問題。  
-最後在誤打誤撞之下組員**把add service專案中的mbed_app.json這個檔案，以其他專案的mbed_app.json取代**，使得整個專案原本遇到不會報錯、不會找source code等**問題全都解決**。並且我後來進一步發現，甚至可以把這個檔案直接刪掉。但原本mbed_app.json的內容其實很正常，完全看不出來任何問題。並且**做到這一步時已經幾乎快過3個禮拜了，我們才真正能開始做作業要的，添加磁力計service的內容。**  
+這次實驗我們在實作程式碼的時候遇到非常嚴重的大BUG，原因是因為add service這個專案沒辦法直接Import，僅能從github下載檔案後解壓縮。(我使用DownGit下載:https://github.com/ARMmbed/mbed-os-example-ble/tree/development/BLE_GattServer_AddService)。解壓縮後為一個add service的專案資料夾，我們便往裡頭import L475E的函式庫、從其他已有的專案中複製mbed os資料夾、和一些其他的檔案進來。***但操作完後卻發現IDE的報錯功能、ctrl+左鍵會導到source code的功能全都失效，並且沒辦法編譯，並且因為沒有錯誤碼完全無從修正起。***  
+因為這個問題我們***放棄使用add service這個專案，找了一個舊版os中提供的gatt server的專案import***，提供計時的service。***一開始使用能正常執行***，所以我們便開始著手修改，使其提供心率和磁力的service。但修改到快完成時，發現不知道為甚麼，明明***只是修改變數名稱，卻在執行時產生program counter reg wrong value的問題。***(編譯時完全沒有任何error或是warning)。本來想嘗試從debuger去修改，但因為實在太底層，我的實力實在沒辦法看出到底是哪裡有問題。  
+最後在誤打誤撞之下組員***把add service專案中的mbed_app.json這個檔案，以其他專案的mbed_app.json取代***，使得整個專案原本遇到不會報錯、不會找source code等***問題全都解決***。並且我後來進一步發現，甚至可以把這個檔案直接刪掉。但原本mbed_app.json的內容其實很正常，完全看不出來任何問題。並且***做到這一步時已經幾乎快過3個禮拜了，我們才真正能開始做作業要的，添加磁力計service的內容。***  
 
 ### 正確解法
 應該要new一個新的empty program後，再把add service解壓縮的內容丟到empty專案內才對。而不是把東西丟進add service的資料夾中。  
