@@ -138,8 +138,8 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 
 void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef *hadc)
 {
-    //to do ..........................
-    event_queue.call(timer_count_half_callback);
+    	//to do ..........................
+        event_queue.call(timer_count_half_callback);
 }
 
 void DMA1_Channel1_IRQHandler(void)
@@ -204,9 +204,9 @@ static void TIM1_Init(void)
     TIM_MasterConfigTypeDef sMasterConfig = {0};
 
     htim1.Instance = TIM1;
-    htim1.Init.Prescaler = 12000 - 1;
+    htim1.Init.Prescaler = 4000 - 1;
     htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-    htim1.Init.Period = 6000 - 1;
+    htim1.Init.Period = 1000 - 1;
     htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
     htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
     if (HAL_TIM_Base_Init(&htim1) != HAL_OK)

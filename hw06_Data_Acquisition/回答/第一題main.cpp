@@ -157,7 +157,7 @@ static void TIM1_Init(void)
     htim1.Init.Prescaler = 4000 - 1; // 修改的地方 // clock = clock / 4000
     htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
     // htim1.Init.Period = 1000 - 1;     
-    htim1.Init.Period = 1000 - 1; // 修改的地方 // 每數1000次 reset 從頭開始數
+    htim1.Init.Period = 20000 - 1; // 修改的地方 // 每數1000次 reset 從頭開始數
     htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
     htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
     if (HAL_TIM_Base_Init(&htim1) != HAL_OK)

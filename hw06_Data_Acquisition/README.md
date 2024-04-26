@@ -22,35 +22,36 @@ Personal report with some discussions and experiences sharing
 ### 【第一題】
 1. new empty os
 2. 把第一題題目.cpp丟進去，改成main.cpp
-3. 修改ADC的(a)觸發頻率和(b)取樣時間
+3. 記得baud rate改成9600
+4. 修改ADC的(a)觸發頻率和(b)取樣時間
    ````C
-   1. hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4; //ADC_CLOCK_ASYNC_DIV1;
-   2. sConfig.SamplingTime = ADC_SAMPLETIME_2CYCLES_5; //ADC_SAMPLETIME_247CYCLES_5;
-   3. htim1.Init.Prescaler = 4000 - 1; 
-   4. htim1.Init.Period = 1000 - 1;
+   1. (b)hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4; //ADC_CLOCK_ASYNC_DIV1;
+   2. (b)sConfig.SamplingTime = ADC_SAMPLETIME_2CYCLES_5; //ADC_SAMPLETIME_247CYCLES_5;
+   3. (a)htim1.Init.Prescaler = 4000 - 1; 
+   4. (a)htim1.Init.Period = 20000 - 1;
    ````
-4. 說明
+5. 說明
    ````
-   本程式運作邏輯是由timer控制adc觸發。  
-   每4000個系統時脈timer計數就會+1，而每數到1000就會輸出一次output。  
-   因為設置了ADC_CLOCK_SYNC_PCLK_DIV4，所以每收到4次timer的output，adc的記數就會+1。
-   而每當ADC數了ADC_SAMPLETIME_2CYCLES_5(代表2.5個clock)就會採樣一次。
-   ````
-5. 取樣時間：
-   ````
-   承上解釋，相當於每4000*1000*4*2.5個系統時脈才會採樣一次。 
+   1. 本程式運作邏輯是由timer控制adc觸發，觸發時間全由timer決定。  
+   2. 此處設定timer的時脈=系統時脈/4000，並且每數20000次才會輸出一次中斷。  
+      因此觸發頻率=系統時脈/4000/20000 = 80M/80M = 1。 (系統時脈=80MHZ)  
+   3. 採樣時間決定採樣出來的精準度，此處設定2.5個adc clk。
+      但因為adc本身就有預分頻過，所以相當於10個sys clk。  
    ````
 6. 補充硬體細節，STM32L475VG 微控制器有三個時鐘源：
    ````
    X1：8 MHz 晶體振蕩器：這是 STM32L475VG 微控制器的一個時鐘源，頻率為 8 MHz。這個時鐘源可能用於系統時鐘或者其他模塊的時鐘。
    X2：32.768 KHz 晶體振蕩器：這是 STM32L475VG 微控制器的另一個時鐘源，頻率為 32.768 KHz。通常用於嵌入式 RTC（實時時鐘）模塊，用於提供精確的實時時鐘功能。
-   X3：來自 ST-LINK MCU 的 8 MHz 時鐘：這是由 ST-LINK MCU（也就是與 STM32L475VG 微控制器連接的 ST-LINK 芯片）提供的時鐘源，頻率為 8 MHz。這個時鐘源可能用於通信或者其他與 ST-LINK MCU 通信相關的功能。   
+   X3：來自 ST-LINK MCU 的 8 MHz 時鐘：這是由 ST-LINK MCU（也就是與 STM32L475VG 微控制器連接的 ST-LINK 芯片）提供的時鐘源，頻率為 8 MHz。這個時鐘源可能用於通信或者其他與 ST-LINK MCU 通信相關的功能。
+
+   但是最後系統的時脈是80M hz !!!!   
    ````
 
 ### 【第二題】
 1. new empty os
 2. 把第二題題目.cpp丟進去，改成main.cpp
-3. 程式碼當中提供了DMA（Direct Memory Access）的struct，
+3. 記得baud rate改成9600
+4. 程式碼當中提供了DMA（Direct Memory Access）的struct，
    修改註解to do的地方，讓ADC能夠過DMA執行。
    ````C
    void timer_count_callback()
@@ -91,7 +92,7 @@ Personal report with some discussions and experiences sharing
    // HAL_ADC_Start_DMA(/*to do ........................*/);
    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)sample_buffer, (SAMPLE_BUFFER_SIZE/2)); // ctrl點擊HAL_ADC_Start_DMA 可以看到API用法
    ````
-4. 說明
+5. 說明
    程式定義了一個256個uint16_t大小的暫存buffer，  
    每當記憶體半滿/全滿就透過DMA存入資料一次。
    並且透過
@@ -99,73 +100,49 @@ Personal report with some discussions and experiences sharing
    #define SAMPLE_BUFFER_SIZE  256
    uint16_t sample_buffer[SAMPLE_BUFFER_SIZE];
    ````
-5. 取樣時間
+6. 時間計算
    ````c
-   取樣時間 = 4*2.5*12000*6000個系統clock
-
-   hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;//ADC_CLOCK_ASYNC_DIV1;
-   sConfig.SamplingTime = ADC_SAMPLETIME_2CYCLES_5
-   htim1.Init.Prescaler = 12000 - 1;
-   htim1.Init.Period = 6000 - 1;
+   htim1.Init.Prescaler = 4000 - 1;
+   htim1.Init.Period = 1000 - 1;
+   
+   取樣頻率 = 系統時脈(80M)/4000/1000  
+   buffer size = 256 每當半滿的時候就會觸發一次中斷 印出結果，  
+   因此每128/(80/4)=6.2秒就會印出一次結果。
    ````
 
 ### 【第三題】
 1. import https://github.com/janjongboom/b-l475e-iot01a-audio-mbed  
+2. baud rate改成115200
+3. 專案說明
    ````
    這是一個錄製mic的範例，每次run以後會等待你按下l475e上的藍色按鈕。  
-   當按下以後會錄製2秒的音訊並儲存為WAV檔案，並結束程式。  
-   程式邏輯會設置一個2秒音檔長度的buffer，  
-   並且在buffer半滿/全滿時，就會透過DMA輸出一次。  
+   當按下以後會錄製2秒音訊並儲存為WAV檔案，並結束程式。  
+
+   程式邏輯是設置了兩個buffer，
+   1. 小buffer的長度為32，當半滿/全滿時會觸發BSP_AUDIO_IN_HalfTransfer_CallBack() 或 BSP_AUDIO_IN_TransferComplete_CallBack()。
+      把目前收集到的值，填入大buffer中。  
+   2. 大buffer的長度為32000，相當於系統採樣頻率16000*2，也就是錄製兩秒的檔案。
+      每當大buffer滿的時候會觸發target_audio_buffer_full()，將音訊儲存為WAV檔案。
    ````
-2. 修改目標
+
+4. 修改目標
    ````
    修改專案的功能，使其可以連續執行，而不會兩秒後就結束。
    不需要保留儲存檔案的功能。
    只要新增一個功能是，設置兩個GPIO腳位。
-   每當buffer半滿時，腳位1=HIGH, 腳位2=LOW。
-   而當buffer全滿時，腳位1=LOW, 腳位2=HIGH。
+   每當小buffer奇數次滿時，腳位1=HIGH, 腳位2=LOW。
+   而當小buffer偶數次滿時，腳位1=LOW, 腳位2=HIGH。
    ````
-3. 修改內容
+5. 修改內容
    1. 定義GPIO腳位
       ````c
       static DigitalOut first(D9);
       static DigitalOut last(D10);
       ````
-   2. 原本處理前半和後半的callback function都是導到target_audio_buffer_full，  
-      現在分開換成兩個不同的event。
-      ````c
-      void BSP_AUDIO_IN_HalfTransfer_CallBack(uint32_t Instance) {
-         
-         ...
-         ...
-         ...
-
-         if (TARGET_AUDIO_BUFFER_IX >= TARGET_AUDIO_BUFFER_NB_SAMPLES) {
-            // ev_queue.call(&target_audio_buffer_full); 換成
-            ev_queue.call(&target_audio_buffer_half);
-            return;
-         }
-      }
-
-      void BSP_AUDIO_IN_TransferComplete_CallBack(uint32_t Instance) {
-                  
-         ...
-         ...
-         ...
-         
-         if (TARGET_AUDIO_BUFFER_IX >= TARGET_AUDIO_BUFFER_NB_SAMPLES) {
-            ev_queue.call(&target_audio_buffer_full);
-            return;
-         }
-      }
-      裡面
-      ````
-         
-   3. 修改event function 「target_audio_buffer_full」和新增「half版本」(內容相同)。  
+   
+   2. 修改event function 「target_audio_buffer_full」。  
       捨棄儲存wav file的功能，並且修改錄滿兩秒以後，  
       改成使用stop和新增deinit。否則下一輪init時會壞掉。  
-      最後使用write讓GPIO有toggle的功能，由於只能輸入int值，本身不可toggle。  
-      在\~int以後+2不知道為甚麼，剛好可以達到\~boolean的效果。
       ````c
       void target_audio_buffer_full() {
          printf("Total complete events: %lu, index is %lu\n", transfer_complete_events, TARGET_AUDIO_BUFFER_IX);
@@ -183,11 +160,6 @@ Personal report with some discussions and experiences sharing
             return;
          }
 
-         first.write((~first.read()+2));
-         printf("first=%d, ~first=%d\n", first.read(), (~first.read()+2));
-         last.write((~last.read()+2));
-         printf("last=%d, ~last=%d\n", last.read(), (~last.read()+2));
-
          printf("full finished\n");
          
          // Re-initialize audio input for the next recording
@@ -202,7 +174,7 @@ Personal report with some discussions and experiences sharing
          start_recording();
       }
       ````
-   4. 新增以下這段 定義GPIO初始值 之後才能toggle
+   3. 在main()裡面 定義GPIO的初始值
       ````c
       int main() {
          printf("Hello from the B-L475E-IOT01A microphone demo\n");
@@ -242,59 +214,27 @@ Personal report with some discussions and experiences sharing
          ev_queue.dispatch_forever();
       }
       ````
-   5. 原本處理前半和後半的callback function都是導到target_audio_buffer_full，  
-      現在分開換成兩個不同的event。
+   4. 在BSP_AUDIO_IN_TransferComplete_CallBack()裡面，  
+      新增以下程式，讓GPIO有toggle的功能。但有幾下幾點要注意  
+      1. 由於只能輸入int值，無法直接toggle。  
+      在\~int以後+2 不知道為甚麼，剛好可以達到\~boolean的效果。
+      2. 另外要注意callback function系統設定會把變數的值用mutex鎖住，所以無法使用print函數。
+      3. 因為callback function底層的程式碼設計，half的回調函數只會被觸發一次，持續錄製下去僅會觸發complete的回調函數。因此僅在complete修改就可以了。
       ````c
-      void BSP_AUDIO_IN_HalfTransfer_CallBack(uint32_t Instance) {
-         
-         ...
-         ...
-         ...
-
-         if (TARGET_AUDIO_BUFFER_IX >= TARGET_AUDIO_BUFFER_NB_SAMPLES) {
-            ev_queue.call(&target_audio_buffer_half);
-            return;
-         }
-      }
-
-      void BSP_AUDIO_IN_TransferComplete_CallBack(uint32_t Instance) {
-                  
-         ...
-         ...
-         ...
-         
-         if (TARGET_AUDIO_BUFFER_IX >= TARGET_AUDIO_BUFFER_NB_SAMPLES) {
-            ev_queue.call(&target_audio_buffer_full);
-            return;
-         }
-      }
-      裡面
-      ````
-   6. a
-      ````c
-      
+      first.write((~first.read()+2));
+      last.write((~last.read()+2));
       ````
 
-4. 取樣時間
+6. 觸發頻率
    ````c
    系統取樣頻率，輸出的結果為16000。
    printf("%d", AUDIO_SAMPLING_FREQUENCY)
 
-   
-   設置buffer大小為取樣兩秒的int16_t矩陣。
-   static size_t TARGET_AUDIO_BUFFER_NB_SAMPLES = AUDIO_SAMPLING_FREQUENCY * 2; // 32000 = 16000 * 2
-   static int16_t *TARGET_AUDIO_BUFFER = (int16_t*)calloc(TARGET_AUDIO_BUFFER_NB_SAMPLES, sizeof(int16_t));
+   PCM buffer的長度為32。
+   static uint16_t PCM_Buffer[PCM_BUFFER_LEN / 2]; // PCM_BUFFER_LEN / 2 = 32
 
-   每當buffer半滿/全滿時會觸發對應的callback function。
-
+   因此每32/16000=0.002ms，就會toggle一次。0.004ms就是一個完整的方波週期。
    ````
-5. 實驗結果
-   邏輯分析儀設置記憶體大小為16khz，取樣頻率為1khz，並且顯示設定25%。  
-   所以在下面可以看到掃描16k/1k*0.25=4秒的結果。  
-   而我們的程式設定2秒為一個完整的wave(buffer長度2秒)，因此得證實驗結果正確。  
-   | ![alt text](image.png) |
-   | :--------------------: |
-   | *邏輯分析儀實驗結果。* |
 
 ## 【實驗討論】
 在實作第三個專案的過程中遇到很多問題。首先是原本的程式只會執行一次兩秒的錄製，而我們需要將其修改為可以無限執行下去。如果直接在結束錄製後，直接拉回到開始錄製，會在開始錄製初始化時觸發error後return中止程式。為了解決這個問題，我試著修改初始化、暫停錄製、繼續錄製的方法(pause、stop、resume、start)等，但都沒解決問題。研究了半天以後才發現，原來重點是結束錄製時，需要新增一個deinit的函式才能解決。  

@@ -1,7 +1,7 @@
 #include "mbed.h"
 #include "stm32l475e_iot01_audio.h"
 
-static uint16_t PCM_Buffer[PCM_BUFFER_LEN / 2];
+static uint16_t PCM_Buffer[PCM_BUFFER_LEN / 2]; // PCM_BUFFER_LEN / 2 = 32
 static BSP_AUDIO_Init_t MicParams;
 
 static DigitalOut first(D9);
@@ -23,61 +23,7 @@ static size_t transfer_complete_events = 0;
 void start_recording();
 void target_audio_buffer_half();
 void target_audio_buffer_full();
-// void target_audio_buffer_full() {
-//     // pause audio stream
-//     int32_t ret = BSP_AUDIO_IN_Pause(AUDIO_INSTANCE);
-//     if (ret != BSP_ERROR_NONE) {
-//         printf("Error Audio Pause (%d)\n", ret);
-//     }
-//     else {
-//         printf("OK Audio Pause\n");
-//     }
 
-//     // create WAV file
-//     // size_t wavFreq = AUDIO_SAMPLING_FREQUENCY;
-//     // size_t dataSize = (TARGET_AUDIO_BUFFER_NB_SAMPLES * 2);
-//     // size_t fileSize = 44 + (TARGET_AUDIO_BUFFER_NB_SAMPLES * 2);
-
-//     // uint8_t wav_header[44] = {
-//     //     0x52, 0x49, 0x46, 0x46, // RIFF
-//     //     static_cast<uint8_t>(fileSize & 0xff), static_cast<uint8_t>((fileSize >> 8) & 0xff), static_cast<uint8_t>((fileSize >> 16) & 0xff), static_cast<uint8_t>((fileSize >> 24) & 0xff),
-//     //     0x57, 0x41, 0x56, 0x45, // WAVE
-//     //     0x66, 0x6d, 0x74, 0x20, // fmt
-//     //     0x10, 0x00, 0x00, 0x00, // length of format data
-//     //     0x01, 0x00, // type of format (1=PCM)
-//     //     0x01, 0x00, // number of channels
-//     //     static_cast<uint8_t>(wavFreq & 0xff), static_cast<uint8_t>((wavFreq >> 8) & 0xff), static_cast<uint8_t>((wavFreq >> 16) & 0xff), static_cast<uint8_t>((wavFreq >> 24) & 0xff),
-//     //     0x00, 0x7d, 0x00, 0x00, // (Sample Rate * BitsPerSample * Channels) / 8
-//     //     0x02, 0x00, 0x10, 0x00,
-//     //     0x64, 0x61, 0x74, 0x61, // data
-//     //     static_cast<uint8_t>(dataSize & 0xff), static_cast<uint8_t>((dataSize >> 8) & 0xff), static_cast<uint8_t>((dataSize >> 16) & 0xff), static_cast<uint8_t>((dataSize >> 24) & 0xff),
-//     // };
-
-
-//     printf("Total complete events: %lu, index is %lu\n", transfer_complete_events, TARGET_AUDIO_BUFFER_IX);
-
-//     // print both the WAV header and the audio buffer in HEX format to serial
-//     // you can use the script in `hex-to-buffer.js` to make a proper WAV file again
-//     // printf("WAV file:\n");
-//     // for (size_t ix = 0; ix < 44; ix++) {
-//     //     printf("%02x", wav_header[ix]);
-//     // }
-
-//     // uint8_t *buf = (uint8_t*)TARGET_AUDIO_BUFFER;
-//     // for (size_t ix = 0; ix < TARGET_AUDIO_BUFFER_NB_SAMPLES * 2; ix++) {
-//     //     printf("%02x", buf[ix]);
-//     // }
-//     printf("\n");
-
-//     start_recording();
-    
-// }
-
-/**
-* @brief  Half Transfer user callback, called by BSP functions.
-* @param  None
-* @retval None
-*/
 void BSP_AUDIO_IN_HalfTransfer_CallBack(uint32_t Instance) {
     half_transfer_events++;
     if (half_transfer_events < SKIP_FIRST_EVENTS) return;
@@ -89,9 +35,9 @@ void BSP_AUDIO_IN_HalfTransfer_CallBack(uint32_t Instance) {
         return;
     }
 
-    /* Copy first half of PCM_Buffer from Microphones onto Fill_Buffer */
-    memcpy(((uint8_t*)TARGET_AUDIO_BUFFER) + (TARGET_AUDIO_BUFFER_IX * 2), PCM_Buffer, buffer_size);
-    TARGET_AUDIO_BUFFER_IX += nb_samples;
+    // /* Copy first half of PCM_Buffer from Microphones onto Fill_Buffer */
+    // memcpy(((uint8_t*)TARGET_AUDIO_BUFFER) + (TARGET_AUDIO_BUFFER_IX * 2), PCM_Buffer, buffer_size);
+    // TARGET_AUDIO_BUFFER_IX += nb_samples;
 
     if (TARGET_AUDIO_BUFFER_IX >= TARGET_AUDIO_BUFFER_NB_SAMPLES) {
         ev_queue.call(&target_audio_buffer_half);
@@ -114,11 +60,9 @@ void BSP_AUDIO_IN_TransferComplete_CallBack(uint32_t Instance) {
     if ((TARGET_AUDIO_BUFFER_IX + nb_samples) > TARGET_AUDIO_BUFFER_NB_SAMPLES) {
         return;
     }
-
-    /* Copy second half of PCM_Buffer from Microphones onto Fill_Buffer */
-    memcpy(((uint8_t*)TARGET_AUDIO_BUFFER) + (TARGET_AUDIO_BUFFER_IX * 2),
-        ((uint8_t*)PCM_Buffer) + (nb_samples * 2), buffer_size);
-    TARGET_AUDIO_BUFFER_IX += nb_samples;
+    
+    first.write((~first.read()+2));
+    last.write((~last.read()+2));
 
     if (TARGET_AUDIO_BUFFER_IX >= TARGET_AUDIO_BUFFER_NB_SAMPLES) {
         ev_queue.call(&target_audio_buffer_full);
@@ -170,39 +114,6 @@ void start_recording() {
     }
 }
 
-void target_audio_buffer_half() {
-    printf("Total complete events: %lu, index is %lu\n", transfer_complete_events, TARGET_AUDIO_BUFFER_IX);
-
-    // Stop audio recording
-    int32_t ret = BSP_AUDIO_IN_Stop(AUDIO_INSTANCE);
-    if (ret != BSP_ERROR_NONE) {
-        printf("Error Audio Stop (%d)\n", ret);
-    }
-
-    // Deinitialize audio input
-    ret = BSP_AUDIO_IN_DeInit(AUDIO_INSTANCE);
-    if (ret != BSP_ERROR_NONE) {
-        printf("Error Audio DeInit (%d)\n", ret);
-        return;
-    }
-
-    first.write(1);
-    last.write(0);
-
-    printf("half\n");
-
-    // Re-initialize audio input for the next recording
-    ret = BSP_AUDIO_IN_Init(AUDIO_INSTANCE, &MicParams);
-    
-    if (ret != BSP_ERROR_NONE) {
-        printf("Error Audio Init in target_audio_buffer_full() (%ld)\r\n", ret);
-        return;
-    }
-
-    // Start recording again
-    start_recording();
-}
-
 void target_audio_buffer_full() {
     printf("Total complete events: %lu, index is %lu\n", transfer_complete_events, TARGET_AUDIO_BUFFER_IX);
 
@@ -218,11 +129,6 @@ void target_audio_buffer_full() {
         printf("Error Audio DeInit (%d)\n", ret);
         return;
     }
-
-    first.write((~first.read()+2));
-    printf("first=%d, ~first=%d\n", first.read(), (~first.read()+2));
-    last.write((~last.read()+2));
-    printf("last=%d, ~last=%d\n", last.read(), (~last.read()+2));
 
     printf("full finished\n");
     
