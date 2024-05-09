@@ -22,7 +22,7 @@ sudo hcitool lescan
 【啟動程式】
 cd test
 sudo hcitool lescan
-sudo python notify.py # hw3
+sudo python notify.py             # hw3
 sudo python ble_scan_connect-1.py # hw4
 
 【解決連不上網路】
