@@ -1,0 +1,13 @@
+首先windows要先安裝燒錄版的驅動程式CH341SER.EXE (在driver資料夾內有附)，
+不要安裝太新版本的，否則arduino內會讀不到。
+
+接下來整體可以照著這個網頁操作，但不知道為甚麼出來的結果會很卡。
+https://hackmd.io/@Robert/Hk1rGMsU3
+其他開發版網址可以填:https://github.com/espressif/arduino-esp32/releases/download/2.0.9/package_esp32_index.json
+因為是2.09版的網址，在開發版管理員下載模組的時候，也要選擇2.09版。
+記得還要改serial scheme。
+
+本來以為是電供或網路的問題，但有換過更好的設備，並沒有解決問題。
+後來是看到這個影片，試著將arduino內的開發版設定改成AI Thinker ESP32-CAM，而不是用上面網頁當中選擇的ESP32 Wrover Module。
+意外地就順很多了，但不太確定真正造成卡頓的問題是甚麼。
+https://www.bilibili.com/video/BV1Dm4y1r71W/?spm_id_from=333.337.search-card.all.click&vd_source=a7ec40e3a00a70629191f9c178661833

@@ -1,0 +1,29 @@
+樹梅派系統自帶python3.9.2
+記得要用樹梅派64bit版本
+如果重灌要在config.txt最下面新增一行enable_uart=1
+
+
+sudo apt update
+sudo apt upgrade
+sudo apt-get install python3-dev
+
+
+下載python自己的版本管理工具
+sudo apt install python3-venv
+
+創環境
+python3 -m venv yolov8
+
+啟動環境
+source yolov8/bin/activate
+
+關閉虛擬環境
+deactivate
+
+
+下載模組
+sudo apt install tesseract-ocr
+tesseract --version
+
+pip install torch torchvision torchaudio (樹梅派有內建超爛GPU)
+pip install numpy opencv-python ultralytics pytesseract pillow matplotlib

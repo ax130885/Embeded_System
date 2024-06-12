@@ -1,10 +1,26 @@
-【網路設定】
+【灌好系統以後】
+在config.txt內
+[all] 底下 新增一行 才能夠用TTL線連接
+enable_uart=1
+
+【網路設定】限32位元使用
 sudo raspi-config # 連按兩下enter進入輸入wifi帳密; 回到首頁 -> 3 -> I2 打開開機自動啟動SSH 就不用下面輸入start SSH
+<以下僅32位元有效>
 sudo cat /etc/wpa_supplicant/wpa_supplicant.conf
 # 修改wpa_supplicant.conf
 # sudo apt update; sudo apt -y upgrade
 # sudo apt-get install vim
-# sudo vim /etc/wpa_supplicant/wpa_supplicant.conf
+# sudo nano /etc/wpa_supplicant/wpa_supplicant.conf
+<檢查現在連線網路>
+iwgetid -r
+<重啟網路功能>
+sudo systemctl restart wpa_supplicant
+sudo systemctl restart networking
+
+<如果發現wpa_supplicant.conf不存在/改了沒用>
+使用nmcli指令修改網路設定
+或是cd /etc/NetworkManager/system-connections 
+修改這個資料夾裡面的檔案
 
 【用SSH區網連線 複製文件】
 先至rpi:sudo systemctl start ssh # 檢查使用sudo systemctl status ssh
@@ -36,3 +52,6 @@ sudo iwconfig wlan0
 【檢查SSH】
 sudo systemctl status ssh
 sudo systemctl start ssh
+
+【啟動環境】
+source "/home/user/yolov8/bin/activate"
