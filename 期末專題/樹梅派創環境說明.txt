@@ -25,5 +25,5 @@ deactivate
 sudo apt install tesseract-ocr
 tesseract --version
 
-pip install torch torchvision torchaudio (樹梅派有內建超爛GPU)
+pip install torch torchvision torchaudio
 pip install numpy opencv-python ultralytics pytesseract pillow matplotlib
